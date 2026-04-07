@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import logoPtp from "@/assets/logo-ptp.png";
+import logoDevektro from "@/assets/logo-devektro.svg";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,7 +26,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-sidebar p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center space-y-3">
-          <img src={logoPtp} alt="Pull The Plug" className="h-[2.1rem] w-auto mx-auto" />
+          <img src={logoDevektro} alt="Devektro" className="h-12 w-auto mx-auto" />
           <CardTitle className="text-xl">Devektro</CardTitle>
           <p className="text-sm text-muted-foreground">Log in om verder te gaan</p>
         </CardHeader>
