@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, CalendarDown } from "lucide-react";
 import { PlannedEventFormDialog } from "@/components/dialogs/PlannedEventFormDialog";
 import { ConfirmDialog } from "@/components/dialogs/ConfirmDialog";
 import type { PlannedEvent } from "@/data/types";
@@ -20,11 +20,48 @@ function daysUntil(dateStr: string): number | null {
   return differenceInDays(d, new Date());
 }
 
+function downloadIcs(event: PlannedEvent, licensePlate: string) {
+  const dateStr = event.event_date.replace(/-/g, ""); // YYYYMMDD
+  const summary = `${event.title} (${licensePlate})`;
+  const description = event.notes ? event.notes.replace(/\n/g, "\\n") : "";
+  const uid = `${event.id}@devektro`;
+  const now = new Date().toISOString().replace(/[-:.]/g, "").slice(0, 15) + "Z";
+
+  const ics = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Devektro//Fleet Management//NL",
+    "CALSCALE:GREGORIAN",
+    "BEGIN:VEVENT",
+    `UID:${uid}`,
+    `DTSTAMP:${now}`,
+    `DTSTART;VALUE=DATE:${dateStr}`,
+    `DTEND;VALUE=DATE:${dateStr}`,
+    `SUMMARY:${summary}`,
+    description ? `DESCRIPTION:${description}` : "",
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ]
+    .filter(Boolean)
+    .join("\r\n");
+
+  const blob = new Blob([ics], { type: "text/calendar;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${event.title}-${licensePlate}.ics`.replace(/\s+/g, "-");
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 export function PlanningTab({ vehicleId }: Props) {
-  const { plannedEvents, updatePlannedEvent, deletePlannedEvent } = useAppStore();
+  const { plannedEvents, vehicles, updatePlannedEvent, deletePlannedEvent } = useAppStore();
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<PlannedEvent | null>(null);
   const [deleting, setDeleting] = useState<PlannedEvent | null>(null);
+
+  const vehicle = vehicles.find((v) => v.id === vehicleId);
+  const licensePlate = vehicle?.license_plate ?? "";
 
   const events = plannedEvents
     .filter((e) => e.vehicle_id === vehicleId)
@@ -61,6 +98,14 @@ export function PlanningTab({ vehicleId }: Props) {
               </div>
             </div>
             <div className="flex gap-1 shrink-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => downloadIcs(e, licensePlate)}
+                title="Download als agenda-afspraak (.ics)"
+              >
+                <CalendarDown className="h-3.5 w-3.5" />
+              </Button>
               <Button variant="ghost" size="sm" onClick={() => { setEditing(e); setFormOpen(true); }}>
                 <Pencil className="h-3.5 w-3.5" />
               </Button>
