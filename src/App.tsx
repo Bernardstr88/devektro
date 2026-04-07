@@ -8,17 +8,9 @@ import { AuthProvider, useAuth } from "@/hooks/useAuth";
 import { AppLayout } from "@/components/AppLayout";
 import { AppProvider } from "@/store/AppStore";
 import Dashboard from "@/pages/Dashboard";
-import Installations from "@/pages/Installations";
-import InstallationDetail from "@/pages/InstallationDetail";
-import Materials from "@/pages/Materials";
-import MaterialDetail from "@/pages/MaterialDetail";
-import Operations from "@/pages/Operations";
-import FirmwareSettings from "@/pages/FirmwareSettings";
-import NewInstallation from "@/pages/NewInstallation";
-import Templates from "@/pages/Templates";
-import FleetOverview from "@/pages/FleetOverview";
+import Vehicles from "@/pages/Vehicles";
+import VehicleDetail from "@/pages/VehicleDetail";
 import UserManagement from "@/pages/UserManagement";
-import AuditLog from "@/pages/AuditLog";
 import Login from "@/pages/Login";
 import NotFound from "@/pages/NotFound";
 import { Loader2 } from "lucide-react";
@@ -44,17 +36,9 @@ function AuthGate() {
         <AppLayout>
           <Routes>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/installations" element={<Installations />} />
-            <Route path="/installations/new" element={<NewInstallation />} />
-            <Route path="/installations/:id" element={<InstallationDetail />} />
-            <Route path="/materials" element={<Materials />} />
-            <Route path="/materials/:id" element={<MaterialDetail />} />
-            <Route path="/operations" element={<Operations />} />
-            <Route path="/firmware" element={<FirmwareSettings />} />
-              <Route path="/templates" element={<Templates />} />
-              <Route path="/fleet" element={<FleetOverview />} />
-              <Route path="/users" element={<UserManagement />} />
-              <Route path="/audit" element={<AuditLog />} />
+            <Route path="/vehicles" element={<Vehicles />} />
+            <Route path="/vehicles/:id" element={<VehicleDetail />} />
+            <Route path="/users" element={<UserManagement />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AppLayout>

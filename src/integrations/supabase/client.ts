@@ -4,10 +4,10 @@ import { createClient } from '@supabase/supabase-js';
 // fall back to the project defaults for hosted environments.
 const SUPABASE_URL =
   (import.meta.env.VITE_SUPABASE_URL as string | undefined) ||
-  "https://ttyxkxyzclhyffqlweeo.supabase.co";
+  "https://ysuafagyknyirrbhebrt.supabase.co";
 
 const SUPABASE_ANON_KEY =
   (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ||
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR0eXhreHl6Y2xoeWZmcWx3ZWVvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2MTMwOTgsImV4cCI6MjA5MDE4OTA5OH0.MJcwIC5Cxgm2zgDvsB6IJiQw6tDLO5pHORgWl0G4P4s";
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlzdWFmYWd5a255aXJyYmhlYnJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU1NDQwMTIsImV4cCI6MjA5MTEyMDAxMn0.708_o5G25tiY_Ee5vAkdqNGpUH9WzzgGazCAbLVB-l0";
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
