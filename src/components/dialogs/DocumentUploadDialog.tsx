@@ -69,12 +69,12 @@ export function DocumentUploadDialog({ open, onOpenChange, vehicleId }: Props) {
           <div className="space-y-1">
             <Label>Bestand *</Label>
             <div
-              className="border-2 border-dashed rounded-md p-6 text-center cursor-pointer hover:bg-muted/30 transition-colors"
+              className="border-2 border-dashed rounded-md p-6 text-center cursor-pointer hover:bg-muted/30 transition-colors overflow-hidden"
               onClick={() => fileRef.current?.click()}
             >
               <Upload className="h-6 w-6 mx-auto text-muted-foreground mb-2" />
               {file ? (
-                <p className="text-sm font-medium">{file.name}</p>
+                <p className="text-sm font-medium truncate max-w-full px-2">{file.name}</p>
               ) : (
                 <p className="text-sm text-muted-foreground">Klik om een bestand te kiezen (PDF, afbeelding)</p>
               )}
