@@ -8,17 +8,10 @@ import { Plus, Pencil, Trash2, Download } from "lucide-react";
 import { PlannedEventFormDialog } from "@/components/dialogs/PlannedEventFormDialog";
 import { ConfirmDialog } from "@/components/dialogs/ConfirmDialog";
 import type { PlannedEvent } from "@/data/types";
-import { differenceInDays, parseISO, isValid } from "date-fns";
-import { formatDate } from "@/lib/formatDate";
+import { formatDate, daysUntil } from "@/lib/formatDate";
 
 interface Props {
   vehicleId: string;
-}
-
-function daysUntil(dateStr: string): number | null {
-  const d = parseISO(dateStr);
-  if (!isValid(d)) return null;
-  return differenceInDays(d, new Date());
 }
 
 function downloadIcs(event: PlannedEvent, licensePlate: string) {

@@ -18,17 +18,8 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { differenceInDays, parseISO, isValid } from "date-fns";
+import { daysUntil, WARN_DAYS } from "@/lib/formatDate";
 import logoSrc from "@/assets/logo-devektro.svg";
-
-const WARN_DAYS = 30;
-
-function daysUntil(dateStr: string | null): number | null {
-  if (!dateStr) return null;
-  const d = parseISO(dateStr);
-  if (!isValid(d)) return null;
-  return differenceInDays(d, new Date());
-}
 
 export function AppSidebar() {
   const { state } = useSidebar();

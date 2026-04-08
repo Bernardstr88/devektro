@@ -4,19 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Truck, AlertTriangle, CalendarClock, ShieldAlert, CheckCircle2 } from "lucide-react";
-import { differenceInDays, parseISO, isValid, format } from "date-fns";
+import { format } from "date-fns";
 import { nl } from "date-fns/locale";
-import { formatDate } from "@/lib/formatDate";
+import { formatDate, daysUntil, WARN_DAYS } from "@/lib/formatDate";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
-
-const WARN_DAYS = 30;
-
-function daysUntil(dateStr: string | null): number | null {
-  if (!dateStr) return null;
-  const d = parseISO(dateStr);
-  if (!isValid(d)) return null;
-  return differenceInDays(d, new Date());
-}
 
 function urgencyBadge(days: number | null) {
   if (days === null) return null;

@@ -208,7 +208,7 @@ export default function UserManagement() {
             </div>
             <div>
               <label className="text-sm text-muted-foreground">Wachtwoord</label>
-              <Input type="text" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Min. 6 tekens" />
+              <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Min. 6 tekens" />
             </div>
           </div>
           <DialogFooter>

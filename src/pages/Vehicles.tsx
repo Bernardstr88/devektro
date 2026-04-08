@@ -7,16 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Loader2, Plus, Search, AlertTriangle } from "lucide-react";
-import { differenceInDays, parseISO, isValid } from "date-fns";
 import { VehicleFormDialog } from "@/components/dialogs/VehicleFormDialog";
-import { formatDate } from "@/lib/formatDate";
-
-function daysUntil(dateStr: string | null): number | null {
-  if (!dateStr) return null;
-  const d = parseISO(dateStr);
-  if (!isValid(d)) return null;
-  return differenceInDays(d, new Date());
-}
+import { formatDate, daysUntil } from "@/lib/formatDate";
 
 function DateBadge({ dateStr }: { dateStr: string | null }) {
   const days = daysUntil(dateStr);
