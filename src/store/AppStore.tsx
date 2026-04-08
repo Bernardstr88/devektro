@@ -182,6 +182,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (error) { toast.error(parseError(error)); throw error; }
     qc.invalidateQueries({ queryKey: ["planned_events"] });
     toast.success("Afspraak ingepland");
+
+    // Fire-and-forget: stuur email naar de chauffeur
+    supabase.functions.invoke("send-appointment-email", {
+      body: {
+        vehicle_id: e.vehicle_id,
+        title: e.title,
+        event_date: e.event_date,
+        type: e.type,
+        notes: e.notes ?? null,
+      },
+    }).catch((err) => console.warn("Email kon niet verzonden worden:", err));
   }, [qc]);
 
   const updatePlannedEvent = useCallback(async (id: string, e: Partial<PlannedEvent>) => {
