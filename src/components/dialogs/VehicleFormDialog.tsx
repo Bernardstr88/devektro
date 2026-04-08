@@ -26,6 +26,7 @@ const schema = z.object({
   insurance_expiry: z.string().optional().nullable(),
   insurance_company: z.string().optional().nullable(),
   insurance_policy_nr: z.string().optional().nullable(),
+  driver_id: z.string().optional().nullable(),
   notes: z.string().optional().nullable(),
   active: z.boolean(),
 });
@@ -42,7 +43,8 @@ const FUEL_TYPES = ["benzine", "diesel", "elektrisch", "hybride", "lpg", "cng"];
 const CATEGORIES = ["personenwagen", "bestelwagen", "vrachtwagen", "aanhangwagen", "motorfiets", "andere"];
 
 export function VehicleFormDialog({ open, onOpenChange, vehicle }: Props) {
-  const { addVehicle, updateVehicle } = useAppStore();
+  const { addVehicle, updateVehicle, drivers } = useAppStore();
+  const activeDrivers = drivers.filter((d) => d.active);
   const isEdit = !!vehicle;
 
   const { register, handleSubmit, reset, setValue, watch, formState: { errors, isSubmitting } } = useForm<FormData>({
@@ -66,6 +68,7 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle }: Props) {
         insurance_expiry: vehicle.insurance_expiry,
         insurance_company: vehicle.insurance_company,
         insurance_policy_nr: vehicle.insurance_policy_nr,
+        driver_id: vehicle.driver_id,
         notes: vehicle.notes,
         active: vehicle.active,
       } : { active: true, year: null, mileage: null });
@@ -73,10 +76,11 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle }: Props) {
   }, [open, vehicle, reset]);
 
   const onSubmit = async (data: FormData) => {
+    const payload = { ...data, driver_id: data.driver_id === "none" ? null : (data.driver_id || null) };
     if (isEdit) {
-      await updateVehicle(vehicle.id, data);
+      await updateVehicle(vehicle.id, payload);
     } else {
-      await addVehicle(data as Omit<Vehicle, "id" | "created_at" | "updated_at">);
+      await addVehicle(payload as Omit<Vehicle, "id" | "created_at" | "updated_at">);
     }
     onOpenChange(false);
   };
@@ -141,6 +145,18 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle }: Props) {
             <div className="space-y-1">
               <Label>Kilometerstand</Label>
               <Input {...register("mileage")} type="number" placeholder="0" />
+            </div>
+            <div className="space-y-1">
+              <Label>Chauffeur</Label>
+              <Select value={watch("driver_id") ?? ""} onValueChange={(v) => setValue("driver_id", v || null)}>
+                <SelectTrigger><SelectValue placeholder="Kies chauffeur" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Geen chauffeur</SelectItem>
+                  {activeDrivers.map((d) => (
+                    <SelectItem key={d.id} value={d.id}>{d.first_name} {d.last_name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

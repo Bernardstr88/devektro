@@ -43,7 +43,7 @@ function sortVehicles(list: Vehicle[], key: SortKey, dir: SortDir): Vehicle[] {
 }
 
 export default function Vehicles() {
-  const { vehicles, isLoading } = useAppStore();
+  const { vehicles, drivers, isLoading } = useAppStore();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [formOpen, setFormOpen] = useState(false);
@@ -173,6 +173,10 @@ export default function Vehicles() {
                 {!v.active && <Badge variant="secondary">Inactief</Badge>}
               </div>
               <p className="text-sm text-muted-foreground">{v.brand} {v.model} {v.year ? `(${v.year})` : ""}</p>
+              {(() => {
+                const driver = v.driver_id ? drivers.find((d) => d.id === v.driver_id) : null;
+                return driver ? <p className="text-sm text-muted-foreground">{driver.first_name} {driver.last_name}</p> : null;
+              })()}
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
                   <p className="text-muted-foreground">Keuring</p>
@@ -199,6 +203,23 @@ export default function Vehicles() {
               {([
                 ["license_plate", "Nummerplaat"],
                 ["brand", "Merk / Model"],
+              ] as [SortKey, string][]).map(([key, label]) => (
+                <TableHead
+                  key={key}
+                  className="cursor-pointer select-none hover:text-foreground"
+                  onClick={() => toggleSort(key)}
+                >
+                  <span className="flex items-center gap-1">
+                    {label}
+                    {sortKey === key
+                      ? <span className="text-xs">{sortDir === "asc" ? "↑" : "↓"}</span>
+                      : <ArrowUpDown className="h-3 w-3 opacity-30" />
+                    }
+                  </span>
+                </TableHead>
+              ))}
+              <TableHead>Chauffeur</TableHead>
+              {([
                 ["category", "Categorie"],
                 ["fuel_type", "Brandstof"],
                 ["inspection_date", "Keuring"],
@@ -237,6 +258,12 @@ export default function Vehicles() {
                     {v.license_plate}
                   </TableCell>
                   <TableCell>{v.brand} {v.model} {v.year ? `(${v.year})` : ""}</TableCell>
+                  <TableCell>
+                    {(() => {
+                      const driver = v.driver_id ? drivers.find((d) => d.id === v.driver_id) : null;
+                      return driver ? `${driver.first_name} ${driver.last_name}` : "—";
+                    })()}
+                  </TableCell>
                   <TableCell className="capitalize">{v.category ?? "—"}</TableCell>
                   <TableCell className="capitalize">{v.fuel_type ?? "—"}</TableCell>
                   <TableCell><DateBadge dateStr={v.inspection_date} /></TableCell>
@@ -252,7 +279,7 @@ export default function Vehicles() {
             })}
             {filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                   Geen voertuigen gevonden.
                 </TableCell>
               </TableRow>

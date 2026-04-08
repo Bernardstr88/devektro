@@ -1,4 +1,5 @@
 import type { Vehicle } from "@/data/types";
+import { useAppStore } from "@/store/AppStore";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatDate } from "@/lib/formatDate";
 
@@ -16,6 +17,9 @@ function Field({ label, value }: { label: string; value: string | number | null 
 }
 
 export function OverviewTab({ vehicle }: Props) {
+  const { drivers } = useAppStore();
+  const driver = vehicle.driver_id ? drivers.find((d) => d.id === vehicle.driver_id) : null;
+
   return (
     <div className="space-y-4">
       <Card>
@@ -29,6 +33,7 @@ export function OverviewTab({ vehicle }: Props) {
           <Field label="Brandstof" value={vehicle.fuel_type} />
           <Field label="Kilometerstand" value={vehicle.mileage !== null ? `${vehicle.mileage.toLocaleString("nl-BE")} km` : null} />
           <Field label="VIN / Chassisnummer" value={vehicle.vin} />
+          <Field label="Chauffeur" value={driver ? `${driver.first_name} ${driver.last_name}` : null} />
         </CardContent>
       </Card>
 

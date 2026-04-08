@@ -2,10 +2,11 @@ import React, { createContext, useCallback, useContext, useEffect } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import type { Vehicle, MaintenanceRecord, PlannedEvent, VehicleDocument } from "@/data/types";
+import type { Vehicle, MaintenanceRecord, PlannedEvent, VehicleDocument, Driver } from "@/data/types";
 
 interface AppState {
   vehicles: Vehicle[];
+  drivers: Driver[];
   maintenanceRecords: MaintenanceRecord[];
   plannedEvents: PlannedEvent[];
   vehicleDocuments: VehicleDocument[];
@@ -14,6 +15,10 @@ interface AppState {
   addVehicle: (v: Omit<Vehicle, "id" | "created_at" | "updated_at">) => Promise<string>;
   updateVehicle: (id: string, v: Partial<Vehicle>) => Promise<void>;
   deleteVehicle: (id: string) => Promise<void>;
+
+  addDriver: (d: Omit<Driver, "id" | "created_at" | "updated_at">) => Promise<string>;
+  updateDriver: (id: string, d: Partial<Driver>) => Promise<void>;
+  deleteDriver: (id: string) => Promise<void>;
 
   addMaintenanceRecord: (m: Omit<MaintenanceRecord, "id" | "created_at">) => Promise<void>;
   updateMaintenanceRecord: (id: string, m: Partial<MaintenanceRecord>) => Promise<void>;
@@ -30,7 +35,7 @@ interface AppState {
 
 const AppContext = createContext<AppState | null>(null);
 
-const TABLES = ["vehicles", "maintenance_records", "planned_events", "vehicle_documents"] as const;
+const TABLES = ["vehicles", "drivers", "maintenance_records", "planned_events", "vehicle_documents"] as const;
 
 const defaultQueryOptions = {
   refetchOnMount: "always" as const,
@@ -75,11 +80,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const qc = useQueryClient();
 
   const { data: vehicles = [], isLoading: l1 } = useTableQuery<Vehicle>("vehicles");
-  const { data: maintenanceRecords = [], isLoading: l2 } = useTableQuery<MaintenanceRecord>("maintenance_records");
-  const { data: plannedEvents = [], isLoading: l3 } = useTableQuery<PlannedEvent>("planned_events");
-  const { data: vehicleDocuments = [], isLoading: l4 } = useTableQuery<VehicleDocument>("vehicle_documents");
+  const { data: drivers = [], isLoading: l2 } = useTableQuery<Driver>("drivers");
+  const { data: maintenanceRecords = [], isLoading: l3 } = useTableQuery<MaintenanceRecord>("maintenance_records");
+  const { data: plannedEvents = [], isLoading: l4 } = useTableQuery<PlannedEvent>("planned_events");
+  const { data: vehicleDocuments = [], isLoading: l5 } = useTableQuery<VehicleDocument>("vehicle_documents");
 
-  const isLoading = l1 || l2 || l3 || l4;
+  const isLoading = l1 || l2 || l3 || l4 || l5;
 
   useEffect(() => {
     void qc.refetchQueries({ type: "active" });
@@ -120,6 +126,33 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     qc.invalidateQueries();
     toast.success("Voertuig verwijderd");
   }, [qc, vehicleDocuments]);
+
+  // --- Drivers ---
+  const addDriver = useCallback(async (d: Omit<Driver, "id" | "created_at" | "updated_at">): Promise<string> => {
+    const { data, error } = await supabase.from("drivers").insert(d).select("id").single();
+    if (error) { toast.error(parseError(error)); throw error; }
+    qc.invalidateQueries({ queryKey: ["drivers"] });
+    toast.success("Chauffeur toegevoegd");
+    return data.id;
+  }, [qc]);
+
+  const updateDriver = useCallback(async (id: string, d: Partial<Driver>) => {
+    const { error } = await supabase.from("drivers").update(d).eq("id", id);
+    if (error) { toast.error(parseError(error)); throw error; }
+    qc.invalidateQueries({ queryKey: ["drivers"] });
+    toast.success("Chauffeur bijgewerkt");
+  }, [qc]);
+
+  const deleteDriver = useCallback(async (id: string) => {
+    // Unassign driver from all vehicles first
+    const { error: unassignError } = await supabase.from("vehicles").update({ driver_id: null }).eq("driver_id", id);
+    if (unassignError) { toast.error(parseError(unassignError)); throw unassignError; }
+    const { error } = await supabase.from("drivers").delete().eq("id", id);
+    if (error) { toast.error(parseError(error)); throw error; }
+    qc.invalidateQueries({ queryKey: ["drivers"] });
+    qc.invalidateQueries({ queryKey: ["vehicles"] });
+    toast.success("Chauffeur verwijderd");
+  }, [qc]);
 
   // --- Maintenance ---
   const addMaintenanceRecord = useCallback(async (m: Omit<MaintenanceRecord, "id" | "created_at">) => {
@@ -206,9 +239,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AppContext.Provider value={{
-      vehicles, maintenanceRecords, plannedEvents, vehicleDocuments,
+      vehicles, drivers, maintenanceRecords, plannedEvents, vehicleDocuments,
       isLoading,
       addVehicle, updateVehicle, deleteVehicle,
+      addDriver, updateDriver, deleteDriver,
       addMaintenanceRecord, updateMaintenanceRecord, deleteMaintenanceRecord,
       addPlannedEvent, updatePlannedEvent, deletePlannedEvent,
       addVehicleDocument, deleteVehicleDocument, getDocumentSignedUrl,

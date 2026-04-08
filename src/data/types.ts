@@ -2,6 +2,20 @@ export type FuelType = "benzine" | "diesel" | "elektrisch" | "hybride" | "lpg" |
 export type VehicleCategory = "personenwagen" | "bestelwagen" | "vrachtwagen" | "aanhangwagen" | "motorfiets" | "andere";
 export type PlannedEventType = "keuring" | "onderhoud" | "verzekering" | "andere";
 
+export interface Driver {
+  id: string;
+  first_name: string;
+  last_name: string;
+  phone: string | null;
+  email: string | null;
+  license_number: string | null;
+  license_expiry: string | null;
+  active: boolean;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Vehicle {
   id: string;
   license_plate: string;
@@ -17,6 +31,7 @@ export interface Vehicle {
   insurance_expiry: string | null;
   insurance_company: string | null;
   insurance_policy_nr: string | null;
+  driver_id: string | null;
   notes: string | null;
   active: boolean;
   created_at: string;
