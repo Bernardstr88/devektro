@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Plus, Pencil, Trash2, CalendarDown } from "lucide-react";
+import { Plus, Pencil, Trash2, Download } from "lucide-react";
 import { PlannedEventFormDialog } from "@/components/dialogs/PlannedEventFormDialog";
 import { ConfirmDialog } from "@/components/dialogs/ConfirmDialog";
 import type { PlannedEvent } from "@/data/types";
 import { differenceInDays, parseISO, isValid } from "date-fns";
+import { formatDate } from "@/lib/formatDate";
 
 interface Props {
   vehicleId: string;
@@ -85,7 +86,7 @@ export function PlanningTab({ vehicleId }: Props) {
               <div>
                 <p className="text-sm font-medium">{e.title}</p>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-xs text-muted-foreground">{e.event_date}</span>
+                  <span className="text-xs text-muted-foreground">{formatDate(e.event_date)}</span>
                   <Badge variant="outline" className="text-xs px-1.5 py-0">{e.type}</Badge>
                   {!e.completed && days !== null && days <= 7 && (
                     <Badge variant="destructive" className="text-xs">{days < 0 ? "Verlopen" : `${days}d`}</Badge>
@@ -104,7 +105,7 @@ export function PlanningTab({ vehicleId }: Props) {
                 onClick={() => downloadIcs(e, licensePlate)}
                 title="Download als agenda-afspraak (.ics)"
               >
-                <CalendarDown className="h-3.5 w-3.5" />
+                <Download className="h-3.5 w-3.5" />
               </Button>
               <Button variant="ghost" size="sm" onClick={() => { setEditing(e); setFormOpen(true); }}>
                 <Pencil className="h-3.5 w-3.5" />

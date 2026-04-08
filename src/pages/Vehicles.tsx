@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Loader2, Plus, Search, AlertTriangle } from "lucide-react";
 import { differenceInDays, parseISO, isValid } from "date-fns";
 import { VehicleFormDialog } from "@/components/dialogs/VehicleFormDialog";
+import { formatDate } from "@/lib/formatDate";
 
 function daysUntil(dateStr: string | null): number | null {
   if (!dateStr) return null;
@@ -20,10 +21,10 @@ function daysUntil(dateStr: string | null): number | null {
 function DateBadge({ dateStr }: { dateStr: string | null }) {
   const days = daysUntil(dateStr);
   if (!dateStr) return <span className="text-muted-foreground text-xs">—</span>;
-  if (days === null) return <span className="text-xs">{dateStr}</span>;
-  if (days < 0) return <Badge variant="destructive">{dateStr}</Badge>;
-  if (days <= 30) return <Badge variant="outline" className="border-orange-400 text-orange-600">{dateStr}</Badge>;
-  return <span className="text-xs">{dateStr}</span>;
+  if (days === null) return <span className="text-xs">{formatDate(dateStr)}</span>;
+  if (days < 0) return <Badge variant="destructive">{formatDate(dateStr)}</Badge>;
+  if (days <= 30) return <Badge variant="outline" className="border-orange-400 text-orange-600">{formatDate(dateStr)}</Badge>;
+  return <span className="text-xs">{formatDate(dateStr)}</span>;
 }
 
 export default function Vehicles() {

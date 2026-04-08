@@ -1,7 +1,10 @@
+import { useMemo } from "react";
 import { LayoutDashboard, Truck, Users, LogOut } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
+import { useAppStore } from "@/store/AppStore";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Sidebar,
   SidebarContent,
@@ -15,16 +18,40 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { differenceInDays, parseISO, isValid } from "date-fns";
+import logoSrc from "@/assets/logo-devektro.svg";
 
-const navItems = [
-  { title: "Dashboard", url: "/", icon: LayoutDashboard },
-  { title: "Voertuigen", url: "/vehicles", icon: Truck },
-  { title: "Gebruikers", url: "/users", icon: Users },
-];
+const WARN_DAYS = 30;
+
+function daysUntil(dateStr: string | null): number | null {
+  if (!dateStr) return null;
+  const d = parseISO(dateStr);
+  if (!isValid(d)) return null;
+  return differenceInDays(d, new Date());
+}
 
 export function AppSidebar() {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
+  const { vehicles } = useAppStore();
+
+  const alertCount = useMemo(() => {
+    const active = vehicles.filter((v) => v.active);
+    let count = 0;
+    for (const v of active) {
+      const kd = daysUntil(v.inspection_date);
+      if (kd !== null && kd <= WARN_DAYS) count++;
+      const id = daysUntil(v.insurance_expiry);
+      if (id !== null && id <= WARN_DAYS) count++;
+    }
+    return count;
+  }, [vehicles]);
+
+  const navItems = [
+    { title: "Dashboard", url: "/", icon: LayoutDashboard, badge: 0 },
+    { title: "Voertuigen", url: "/vehicles", icon: Truck, badge: alertCount },
+    { title: "Gebruikers", url: "/users", icon: Users, badge: 0 },
+  ];
 
   return (
     <Sidebar collapsible="offcanvas">
@@ -32,7 +59,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel className="text-sidebar-muted text-xs uppercase tracking-wider py-4 px-2">
             {!collapsed ? (
-              <span className="text-base font-bold tracking-tight text-sidebar-foreground">Devektro</span>
+              <img src={logoSrc} alt="Devektro" className="h-6 brightness-0 invert" />
             ) : (
               <span className="text-sm font-bold text-sidebar-foreground">D</span>
             )}
@@ -50,6 +77,11 @@ export function AppSidebar() {
                     >
                       <item.icon className="mr-2 h-4 w-4" />
                       {!collapsed && <span>{item.title}</span>}
+                      {item.badge > 0 && (
+                        <Badge variant="destructive" className="ml-auto text-xs px-1.5 py-0 min-w-[1.25rem] justify-center">
+                          {item.badge}
+                        </Badge>
+                      )}
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

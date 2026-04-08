@@ -7,6 +7,7 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 import { MaintenanceFormDialog } from "@/components/dialogs/MaintenanceFormDialog";
 import { ConfirmDialog } from "@/components/dialogs/ConfirmDialog";
 import type { MaintenanceRecord } from "@/data/types";
+import { formatDate } from "@/lib/formatDate";
 
 interface Props {
   vehicleId: string;
@@ -46,11 +47,11 @@ export function MaintenanceTab({ vehicleId }: Props) {
                   </Button>
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground">{r.date}{r.mileage_at_service ? ` · ${r.mileage_at_service.toLocaleString("nl-BE")} km` : ""}</p>
+              <p className="text-xs text-muted-foreground">{formatDate(r.date)}{r.mileage_at_service ? ` · ${r.mileage_at_service.toLocaleString("nl-BE")} km` : ""}</p>
               {r.description && <p className="text-sm">{r.description}</p>}
               {r.provider && <p className="text-xs text-muted-foreground">{r.provider}</p>}
               {r.cost !== null && <p className="text-sm font-medium">€ {Number(r.cost).toFixed(2)}</p>}
-              {r.next_maintenance_date && <p className="text-xs text-muted-foreground">Volgend: {r.next_maintenance_date}</p>}
+              {r.next_maintenance_date && <p className="text-xs text-muted-foreground">Volgend: {formatDate(r.next_maintenance_date)}</p>}
             </CardContent>
           </Card>
         ))}
@@ -77,13 +78,13 @@ export function MaintenanceTab({ vehicleId }: Props) {
           <TableBody>
             {records.map((r) => (
               <TableRow key={r.id}>
-                <TableCell className="text-sm">{r.date}</TableCell>
+                <TableCell className="text-sm">{formatDate(r.date)}</TableCell>
                 <TableCell className="text-sm">{r.type}</TableCell>
                 <TableCell className="text-sm">{r.description ?? "—"}</TableCell>
                 <TableCell className="text-sm">{r.mileage_at_service !== null ? `${r.mileage_at_service.toLocaleString("nl-BE")} km` : "—"}</TableCell>
                 <TableCell className="text-sm">{r.provider ?? "—"}</TableCell>
                 <TableCell className="text-sm">{r.cost !== null ? `€ ${Number(r.cost).toFixed(2)}` : "—"}</TableCell>
-                <TableCell className="text-sm">{r.next_maintenance_date ?? "—"}</TableCell>
+                <TableCell className="text-sm">{r.next_maintenance_date ? formatDate(r.next_maintenance_date) : "—"}</TableCell>
                 <TableCell>
                   <div className="flex gap-1">
                     <Button variant="ghost" size="sm" onClick={() => { setEditing(r); setFormOpen(true); }}>
