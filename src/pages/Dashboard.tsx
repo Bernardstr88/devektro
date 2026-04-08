@@ -3,7 +3,8 @@ import { useAppStore } from "@/store/AppStore";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Truck, AlertTriangle, CalendarClock, ShieldAlert, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, Truck, AlertTriangle, CalendarClock, ShieldAlert, CheckCircle2, Plus } from "lucide-react";
 import { format } from "date-fns";
 import { nl } from "date-fns/locale";
 import { formatDate, daysUntil, WARN_DAYS } from "@/lib/formatDate";
@@ -60,6 +61,26 @@ export default function Dashboard() {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (vehicles.length === 0) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-semibold">Dashboard</h1>
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="rounded-full bg-muted p-4 mb-4">
+            <Truck className="h-10 w-10 text-muted-foreground" />
+          </div>
+          <h2 className="text-lg font-semibold mb-1">Welkom bij Devektro</h2>
+          <p className="text-sm text-muted-foreground mb-6 max-w-sm">
+            Voeg je eerste voertuig toe om keuringen, verzekeringen en onderhoud bij te houden.
+          </p>
+          <Button onClick={() => navigate("/vehicles")}>
+            <Plus className="h-4 w-4 mr-1" /> Voertuig toevoegen
+          </Button>
+        </div>
       </div>
     );
   }
