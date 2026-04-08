@@ -3,17 +3,12 @@ import { useAppStore } from "@/store/AppStore";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Truck, AlertTriangle, CalendarClock, ShieldAlert } from "lucide-react";
-import { differenceInDays, parseISO, isValid } from "date-fns";
-
-const WARN_DAYS = 30;
-
-function daysUntil(dateStr: string | null): number | null {
-  if (!dateStr) return null;
-  const d = parseISO(dateStr);
-  if (!isValid(d)) return null;
-  return differenceInDays(d, new Date());
-}
+import { Button } from "@/components/ui/button";
+import { Loader2, Truck, AlertTriangle, CalendarClock, ShieldAlert, CheckCircle2, Plus } from "lucide-react";
+import { format } from "date-fns";
+import { nl } from "date-fns/locale";
+import { formatDate, daysUntil, WARN_DAYS } from "@/lib/formatDate";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 
 function urgencyBadge(days: number | null) {
   if (days === null) return null;
@@ -24,7 +19,7 @@ function urgencyBadge(days: number | null) {
 }
 
 export default function Dashboard() {
-  const { vehicles, plannedEvents, isLoading } = useAppStore();
+  const { vehicles, plannedEvents, maintenanceRecords, isLoading } = useAppStore();
   const navigate = useNavigate();
 
   const stats = useMemo(() => {
@@ -47,10 +42,45 @@ export default function Dashboard() {
       .slice(0, 10);
   }, [plannedEvents]);
 
+  const monthlyCosts = useMemo(() => {
+    const now = new Date();
+    const months: { name: string; total: number }[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = format(d, "yyyy-MM");
+      const label = format(d, "MMM yy", { locale: nl });
+      const total = maintenanceRecords
+        .filter((r) => r.date.startsWith(key) && r.cost !== null)
+        .reduce((sum, r) => sum + Number(r.cost), 0);
+      months.push({ name: label, total: Math.round(total * 100) / 100 });
+    }
+    return months;
+  }, [maintenanceRecords]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (vehicles.length === 0) {
+    return (
+      <div className="space-y-6">
+        <h1 className="text-2xl font-semibold">Dashboard</h1>
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="rounded-full bg-muted p-4 mb-4">
+            <Truck className="h-10 w-10 text-muted-foreground" />
+          </div>
+          <h2 className="text-lg font-semibold mb-1">Welkom bij Devektro</h2>
+          <p className="text-sm text-muted-foreground mb-6 max-w-sm">
+            Voeg je eerste voertuig toe om keuringen, verzekeringen en onderhoud bij te houden.
+          </p>
+          <Button onClick={() => navigate("/vehicles")}>
+            <Plus className="h-4 w-4 mr-1" /> Voertuig toevoegen
+          </Button>
+        </div>
       </div>
     );
   }
@@ -69,24 +99,30 @@ export default function Dashboard() {
             <p className="text-3xl font-bold">{stats.total}</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className={stats.keuringAlert.length > 0 ? "border-orange-300 bg-orange-50" : "border-green-300 bg-green-50"}>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Keuring verloopt binnenkort</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-orange-500" />
+            {stats.keuringAlert.length > 0
+              ? <AlertTriangle className="h-4 w-4 text-orange-500" />
+              : <CheckCircle2 className="h-4 w-4 text-green-600" />
+            }
           </CardHeader>
           <CardContent>
-            <p className={`text-3xl font-bold ${stats.keuringAlert.length > 0 ? "text-orange-500" : ""}`}>
+            <p className={`text-3xl font-bold ${stats.keuringAlert.length > 0 ? "text-orange-500" : "text-green-600"}`}>
               {stats.keuringAlert.length}
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className={stats.insuranceAlert.length > 0 ? "border-orange-300 bg-orange-50" : "border-green-300 bg-green-50"}>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Verzekering verloopt binnenkort</CardTitle>
-            <ShieldAlert className="h-4 w-4 text-orange-500" />
+            {stats.insuranceAlert.length > 0
+              ? <ShieldAlert className="h-4 w-4 text-orange-500" />
+              : <CheckCircle2 className="h-4 w-4 text-green-600" />
+            }
           </CardHeader>
           <CardContent>
-            <p className={`text-3xl font-bold ${stats.insuranceAlert.length > 0 ? "text-orange-500" : ""}`}>
+            <p className={`text-3xl font-bold ${stats.insuranceAlert.length > 0 ? "text-orange-500" : "text-green-600"}`}>
               {stats.insuranceAlert.length}
             </p>
           </CardContent>
@@ -103,7 +139,10 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             {stats.keuringAlert.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Geen verlopende keuringen.</p>
+              <div className="flex items-center gap-2 text-sm text-green-600">
+                <CheckCircle2 className="h-4 w-4" />
+                Alle keuringen zijn in orde.
+              </div>
             ) : (
               <div className="space-y-1">
                 {stats.keuringAlert
@@ -119,7 +158,7 @@ export default function Dashboard() {
                         <span className="text-sm text-muted-foreground ml-2">{v.brand} {v.model}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">{v.inspection_date}</span>
+                        <span className="text-xs text-muted-foreground">{formatDate(v.inspection_date)}</span>
                         {urgencyBadge(daysUntil(v.inspection_date))}
                       </div>
                     </div>
@@ -138,7 +177,10 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             {stats.insuranceAlert.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Geen verlopende verzekeringen.</p>
+              <div className="flex items-center gap-2 text-sm text-green-600">
+                <CheckCircle2 className="h-4 w-4" />
+                Alle verzekeringen zijn in orde.
+              </div>
             ) : (
               <div className="space-y-1">
                 {stats.insuranceAlert
@@ -154,7 +196,7 @@ export default function Dashboard() {
                         <span className="text-sm text-muted-foreground ml-2">{v.brand} {v.model}</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">{v.insurance_expiry}</span>
+                        <span className="text-xs text-muted-foreground">{formatDate(v.insurance_expiry)}</span>
                         {urgencyBadge(daysUntil(v.insurance_expiry))}
                       </div>
                     </div>
@@ -164,7 +206,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-2">
+        <Card>
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <CalendarClock className="h-4 w-4" />
@@ -173,7 +215,10 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             {upcomingEvents.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Geen openstaande afspraken.</p>
+              <div className="flex items-center gap-2 text-sm text-green-600">
+                <CheckCircle2 className="h-4 w-4" />
+                Geen openstaande afspraken.
+              </div>
             ) : (
               <div className="space-y-1">
                 {upcomingEvents.map((e) => {
@@ -191,13 +236,34 @@ export default function Dashboard() {
                         )}
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-muted-foreground">{e.event_date}</span>
+                        <span className="text-xs text-muted-foreground">{formatDate(e.event_date)}</span>
                         {urgencyBadge(daysUntil(e.event_date))}
                       </div>
                     </div>
                   );
                 })}
               </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-base">Onderhoudskosten (6 maanden)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {monthlyCosts.every((m) => m.total === 0) ? (
+              <p className="text-sm text-muted-foreground text-center py-8">Geen kostendata beschikbaar.</p>
+            ) : (
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={monthlyCosts}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                  <YAxis tick={{ fontSize: 12 }} tickFormatter={(v) => `€${v}`} width={60} />
+                  <Tooltip formatter={(value: number) => [`€ ${value.toFixed(2)}`, "Kosten"]} />
+                  <Bar dataKey="total" fill="hsl(215 80% 48%)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
             )}
           </CardContent>
         </Card>

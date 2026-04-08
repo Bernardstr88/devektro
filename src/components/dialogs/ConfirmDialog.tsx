@@ -20,9 +20,9 @@ export function ConfirmDialog({ open, onOpenChange, title, description, onConfir
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>Annuleren</AlertDialogCancel>
           <AlertDialogAction onClick={onConfirm} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-            Delete
+            Verwijderen
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

@@ -1,5 +1,6 @@
 import type { Vehicle } from "@/data/types";
 import { Card, CardContent } from "@/components/ui/card";
+import { formatDate } from "@/lib/formatDate";
 
 interface Props {
   vehicle: Vehicle;
@@ -33,8 +34,8 @@ export function OverviewTab({ vehicle }: Props) {
 
       <Card>
         <CardContent className="pt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
-          <Field label="Keuringsdatum" value={vehicle.inspection_date} />
-          <Field label="Verzekering vervaldatum" value={vehicle.insurance_expiry} />
+          <Field label="Keuringsdatum" value={formatDate(vehicle.inspection_date)} />
+          <Field label="Verzekering vervaldatum" value={formatDate(vehicle.insurance_expiry)} />
           <Field label="Verzekeringsmaatschappij" value={vehicle.insurance_company} />
           <Field label="Polisnummer" value={vehicle.insurance_policy_nr} />
         </CardContent>
