@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { LayoutDashboard, Truck, Users, LogOut } from "lucide-react";
+import { LayoutDashboard, Truck, UserCheck, Users, LogOut } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
 import { useAppStore } from "@/store/AppStore";
@@ -41,6 +41,7 @@ export function AppSidebar() {
   const navItems = [
     { title: "Dashboard", url: "/", icon: LayoutDashboard, badge: 0 },
     { title: "Voertuigen", url: "/vehicles", icon: Truck, badge: alertCount },
+    { title: "Chauffeurs", url: "/drivers", icon: UserCheck, badge: 0 },
     { title: "Gebruikers", url: "/users", icon: Users, badge: 0 },
   ];
 
