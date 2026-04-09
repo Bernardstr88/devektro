@@ -2,7 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import type { Vehicle, MaintenanceRecord, PlannedEvent, VehicleDocument, Driver } from "@/data/types";
+import type { Vehicle, MaintenanceRecord, PlannedEvent, VehicleDocument, Driver, MileageRecord } from "@/data/types";
 
 interface AppState {
   vehicles: Vehicle[];
@@ -10,6 +10,7 @@ interface AppState {
   maintenanceRecords: MaintenanceRecord[];
   plannedEvents: PlannedEvent[];
   vehicleDocuments: VehicleDocument[];
+  mileageRecords: MileageRecord[];
   isLoading: boolean;
 
   addVehicle: (v: Omit<Vehicle, "id" | "created_at" | "updated_at">) => Promise<string>;
@@ -31,11 +32,14 @@ interface AppState {
   addVehicleDocument: (vehicleId: string, file: File, meta: { type: string; name: string; expiry_date: string | null; tags: string[] }) => Promise<void>;
   deleteVehicleDocument: (id: string, filePath: string) => Promise<void>;
   getDocumentSignedUrl: (filePath: string) => Promise<string>;
+
+  addMileageRecord: (r: Omit<MileageRecord, "id" | "created_at">) => Promise<void>;
+  deleteMileageRecord: (id: string, vehicleId: string, newLatestMileage: number | null) => Promise<void>;
 }
 
 const AppContext = createContext<AppState | null>(null);
 
-const TABLES = ["vehicles", "drivers", "maintenance_records", "planned_events", "vehicle_documents"] as const;
+const TABLES = ["vehicles", "drivers", "maintenance_records", "planned_events", "vehicle_documents", "mileage_records"] as const;
 
 const defaultQueryOptions = {
   refetchOnMount: "always" as const,
@@ -84,8 +88,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const { data: maintenanceRecords = [], isLoading: l3 } = useTableQuery<MaintenanceRecord>("maintenance_records");
   const { data: plannedEvents = [], isLoading: l4 } = useTableQuery<PlannedEvent>("planned_events");
   const { data: vehicleDocuments = [], isLoading: l5 } = useTableQuery<VehicleDocument>("vehicle_documents");
+  const { data: mileageRecords = [], isLoading: l6 } = useTableQuery<MileageRecord>("mileage_records");
 
-  const isLoading = l1 || l2 || l3 || l4 || l5;
+  const isLoading = l1 || l2 || l3 || l4 || l5 || l6;
 
   useEffect(() => {
     void qc.refetchQueries({ type: "active" });
@@ -249,15 +254,35 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return data.signedUrl;
   }, []);
 
+  // --- Mileage records ---
+  const addMileageRecord = useCallback(async (r: Omit<MileageRecord, "id" | "created_at">) => {
+    const { error } = await supabase.from("mileage_records").insert(r);
+    if (error) { toast.error(parseError(error)); throw error; }
+    await supabase.from("vehicles").update({ mileage: r.mileage }).eq("id", r.vehicle_id);
+    qc.invalidateQueries({ queryKey: ["mileage_records"] });
+    qc.invalidateQueries({ queryKey: ["vehicles"] });
+    toast.success("Kilometerstand toegevoegd");
+  }, [qc]);
+
+  const deleteMileageRecord = useCallback(async (id: string, vehicleId: string, newLatestMileage: number | null) => {
+    const { error } = await supabase.from("mileage_records").delete().eq("id", id);
+    if (error) { toast.error(parseError(error)); throw error; }
+    await supabase.from("vehicles").update({ mileage: newLatestMileage }).eq("id", vehicleId);
+    qc.invalidateQueries({ queryKey: ["mileage_records"] });
+    qc.invalidateQueries({ queryKey: ["vehicles"] });
+    toast.success("Record verwijderd");
+  }, [qc]);
+
   return (
     <AppContext.Provider value={{
-      vehicles, drivers, maintenanceRecords, plannedEvents, vehicleDocuments,
+      vehicles, drivers, maintenanceRecords, plannedEvents, vehicleDocuments, mileageRecords,
       isLoading,
       addVehicle, updateVehicle, deleteVehicle,
       addDriver, updateDriver, deleteDriver,
       addMaintenanceRecord, updateMaintenanceRecord, deleteMaintenanceRecord,
       addPlannedEvent, updatePlannedEvent, deletePlannedEvent,
       addVehicleDocument, deleteVehicleDocument, getDocumentSignedUrl,
+      addMileageRecord, deleteMileageRecord,
     }}>
       {children}
     </AppContext.Provider>

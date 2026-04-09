@@ -222,8 +222,8 @@ export default function Vehicles() {
               {([
                 ["category", "Categorie"],
                 ["fuel_type", "Brandstof"],
-                ["inspection_date", "Keuring"],
-                ["insurance_expiry", "Verzekering"],
+                ["inspection_date", "Keuring geldig tot"],
+                ["insurance_expiry", "Verzekering vervalt"],
                 ["active", "Status"],
               ] as [SortKey, string][]).map(([key, label]) => (
                 <TableHead

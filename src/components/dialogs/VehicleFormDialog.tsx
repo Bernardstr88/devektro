@@ -22,6 +22,8 @@ const schema = z.object({
   fuel_type: z.string().optional().nullable(),
   category: z.string().optional().nullable(),
   mileage: z.coerce.number().int().min(0).nullable(),
+  first_registration_date: z.string().optional().nullable(),
+  last_inspection_date: z.string().optional().nullable(),
   inspection_date: z.string().optional().nullable(),
   insurance_expiry: z.string().optional().nullable(),
   insurance_company: z.string().optional().nullable(),
@@ -64,6 +66,8 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle }: Props) {
         fuel_type: vehicle.fuel_type,
         category: vehicle.category,
         mileage: vehicle.mileage,
+        first_registration_date: vehicle.first_registration_date,
+        last_inspection_date: vehicle.last_inspection_date,
         inspection_date: vehicle.inspection_date,
         insurance_expiry: vehicle.insurance_expiry,
         insurance_company: vehicle.insurance_company,
@@ -147,6 +151,10 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle }: Props) {
               <Input {...register("mileage")} type="number" placeholder="0" />
             </div>
             <div className="space-y-1">
+              <Label>Eerste ingebruikname</Label>
+              <Input {...register("first_registration_date")} type="date" />
+            </div>
+            <div className="space-y-1">
               <Label>Chauffeur</Label>
               <Select value={watch("driver_id") ?? ""} onValueChange={(v) => setValue("driver_id", v || null)}>
                 <SelectTrigger><SelectValue placeholder="Kies chauffeur" /></SelectTrigger>
@@ -164,7 +172,11 @@ export function VehicleFormDialog({ open, onOpenChange, vehicle }: Props) {
           <p className="text-sm font-medium">Keuring & Verzekering</p>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label>Keuringsdatum</Label>
+              <Label>Datum laatste keuring</Label>
+              <Input {...register("last_inspection_date")} type="date" />
+            </div>
+            <div className="space-y-1">
+              <Label>Keuring geldig tot</Label>
               <Input {...register("inspection_date")} type="date" />
             </div>
             <div className="space-y-1">

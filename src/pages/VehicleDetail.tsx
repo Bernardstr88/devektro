@@ -11,6 +11,7 @@ import { OverviewTab } from "@/components/vehicle-tabs/OverviewTab";
 import { MaintenanceTab } from "@/components/vehicle-tabs/MaintenanceTab";
 import { DocumentsTab } from "@/components/vehicle-tabs/DocumentsTab";
 import { PlanningTab } from "@/components/vehicle-tabs/PlanningTab";
+import { MileageTab } from "@/components/vehicle-tabs/MileageTab";
 
 export default function VehicleDetail() {
   const { id } = useParams<{ id: string }>();
@@ -81,6 +82,7 @@ export default function VehicleDetail() {
           <TabsTrigger value="maintenance">Onderhoud</TabsTrigger>
           <TabsTrigger value="documents">Documenten</TabsTrigger>
           <TabsTrigger value="planning">Planning</TabsTrigger>
+          <TabsTrigger value="mileage">Kilometerstanden</TabsTrigger>
         </TabsList>
         <TabsContent value="overview" className="mt-4">
           <OverviewTab vehicle={vehicle} />
@@ -93,6 +95,9 @@ export default function VehicleDetail() {
         </TabsContent>
         <TabsContent value="planning" className="mt-4">
           <PlanningTab vehicleId={vehicle.id} />
+        </TabsContent>
+        <TabsContent value="mileage" className="mt-4">
+          <MileageTab vehicle={vehicle} />
         </TabsContent>
       </Tabs>
 

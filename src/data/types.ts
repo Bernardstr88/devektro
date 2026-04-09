@@ -27,6 +27,8 @@ export interface Vehicle {
   fuel_type: string | null;
   category: string | null;
   mileage: number | null;
+  first_registration_date: string | null;
+  last_inspection_date: string | null;
   inspection_date: string | null;
   insurance_expiry: string | null;
   insurance_company: string | null;
@@ -60,6 +62,15 @@ export interface PlannedEvent {
   type: string;
   notes: string | null;
   completed: boolean;
+  created_at: string;
+}
+
+export interface MileageRecord {
+  id: string;
+  vehicle_id: string;
+  date: string;
+  mileage: number;
+  notes: string | null;
   created_at: string;
 }
 
