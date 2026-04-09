@@ -70,5 +70,6 @@ export interface VehicleDocument {
   name: string;
   file_url: string;
   expiry_date: string | null;
+  tags: string[];
   created_at: string;
 }

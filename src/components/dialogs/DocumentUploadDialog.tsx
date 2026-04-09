@@ -1,11 +1,12 @@
-import { useState, useRef } from "react";
+import { useState, useRef, KeyboardEvent } from "react";
 import { useAppStore } from "@/store/AppStore";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Upload } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 
 const DOC_TYPES = ["verzekering", "gelijkvormigheidsattest", "keuring", "inschrijving", "andere"];
@@ -22,6 +23,8 @@ export function DocumentUploadDialog({ open, onOpenChange, vehicleId }: Props) {
   const [name, setName] = useState("");
   const [type, setType] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
+  const [tags, setTags] = useState<string[]>([]);
+  const [tagInput, setTagInput] = useState("");
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -30,6 +33,8 @@ export function DocumentUploadDialog({ open, onOpenChange, vehicleId }: Props) {
     setName("");
     setType("");
     setExpiryDate("");
+    setTags([]);
+    setTagInput("");
     if (fileRef.current) fileRef.current.value = "";
   };
 
@@ -37,6 +42,21 @@ export function DocumentUploadDialog({ open, onOpenChange, vehicleId }: Props) {
     const f = e.target.files?.[0] ?? null;
     setFile(f);
     if (f && !name) setName(f.name.replace(/\.[^.]+$/, ""));
+  };
+
+  const addTag = (value: string) => {
+    const tag = value.trim().toLowerCase();
+    if (tag && !tags.includes(tag)) setTags((prev) => [...prev, tag]);
+    setTagInput("");
+  };
+
+  const handleTagKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      addTag(tagInput);
+    } else if (e.key === "Backspace" && !tagInput && tags.length > 0) {
+      setTags((prev) => prev.slice(0, -1));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -51,6 +71,7 @@ export function DocumentUploadDialog({ open, onOpenChange, vehicleId }: Props) {
         type,
         name: name.trim(),
         expiry_date: expiryDate || null,
+        tags,
       });
       reset();
       onOpenChange(false);
@@ -103,6 +124,28 @@ export function DocumentUploadDialog({ open, onOpenChange, vehicleId }: Props) {
                 ))}
               </SelectContent>
             </Select>
+          </div>
+
+          <div className="space-y-1">
+            <Label>Tags (optioneel)</Label>
+            <div className="flex flex-wrap gap-1.5 min-h-9 w-full rounded-md border border-input bg-transparent px-3 py-1.5 text-sm focus-within:ring-1 focus-within:ring-ring">
+              {tags.map((tag) => (
+                <Badge key={tag} variant="secondary" className="gap-1 px-1.5 py-0 h-6">
+                  {tag}
+                  <button type="button" onClick={() => setTags((prev) => prev.filter((t) => t !== tag))}>
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              ))}
+              <input
+                className="flex-1 min-w-24 bg-transparent outline-none placeholder:text-muted-foreground"
+                placeholder={tags.length === 0 ? "typ tag + Enter" : ""}
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyDown={handleTagKeyDown}
+                onBlur={() => { if (tagInput) addTag(tagInput); }}
+              />
+            </div>
           </div>
 
           <div className="space-y-1">

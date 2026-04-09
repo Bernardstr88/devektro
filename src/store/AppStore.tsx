@@ -28,7 +28,7 @@ interface AppState {
   updatePlannedEvent: (id: string, e: Partial<PlannedEvent>) => Promise<void>;
   deletePlannedEvent: (id: string) => Promise<void>;
 
-  addVehicleDocument: (vehicleId: string, file: File, meta: { type: string; name: string; expiry_date: string | null }) => Promise<void>;
+  addVehicleDocument: (vehicleId: string, file: File, meta: { type: string; name: string; expiry_date: string | null; tags: string[] }) => Promise<void>;
   deleteVehicleDocument: (id: string, filePath: string) => Promise<void>;
   getDocumentSignedUrl: (filePath: string) => Promise<string>;
 }
@@ -213,7 +213,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const addVehicleDocument = useCallback(async (
     vehicleId: string,
     file: File,
-    meta: { type: string; name: string; expiry_date: string | null },
+    meta: { type: string; name: string; expiry_date: string | null; tags: string[] },
   ) => {
     const storagePath = `${vehicleId}/${crypto.randomUUID()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
     const { error: uploadError } = await supabase.storage.from("vehicle-documents").upload(storagePath, file);
@@ -225,6 +225,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       name: meta.name,
       file_url: storagePath,
       expiry_date: meta.expiry_date || null,
+      tags: meta.tags,
     });
     if (dbError) {
       await supabase.storage.from("vehicle-documents").remove([storagePath]);
