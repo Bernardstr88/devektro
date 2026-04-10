@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { useAppStore } from "@/store/AppStore";
-import { Search } from "lucide-react";
+import { ChevronRight, Search } from "lucide-react";
 
 function GlobalSearch() {
   const { vehicles } = useAppStore();
@@ -60,13 +60,26 @@ function GlobalSearch() {
   );
 }
 
+function MobileMenuTab() {
+  const { toggleSidebar } = useSidebar();
+  return (
+    <button
+      onClick={toggleSidebar}
+      className="sm:hidden fixed left-0 top-1/2 -translate-y-1/2 z-50 flex items-center justify-center bg-[#1B2A4A] border-0 rounded-r-lg shadow-md h-14 w-4 text-white active:bg-[#243560]"
+      aria-label="Menu openen"
+    >
+      <ChevronRight className="h-3 w-3" />
+    </button>
+  );
+}
+
 export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
         <AppSidebar />
         <div className="flex-1 flex flex-col min-w-0">
-          <header className="h-12 flex items-center border-b px-4 bg-background">
+          <header className="hidden sm:flex h-12 items-center border-b px-4 bg-background">
             <SidebarTrigger />
             <GlobalSearch />
           </header>
@@ -74,6 +87,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             {children}
           </main>
         </div>
+        <MobileMenuTab />
       </div>
     </SidebarProvider>
   );

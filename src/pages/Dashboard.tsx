@@ -89,40 +89,40 @@ export default function Dashboard() {
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold">Dashboard</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Actieve voertuigen</CardTitle>
-            <Truck className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className="flex flex-row items-center justify-between p-3 pb-1 sm:pb-2 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground leading-tight">Actieve voertuigen</CardTitle>
+            <Truck className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground shrink-0" />
           </CardHeader>
-          <CardContent>
-            <p className="text-3xl font-bold">{stats.total}</p>
+          <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+            <p className="text-2xl sm:text-3xl font-bold">{stats.total}</p>
           </CardContent>
         </Card>
         <Card className={stats.keuringAlert.length > 0 ? "border-orange-300 bg-orange-50" : "border-green-300 bg-green-50"}>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Keuring verloopt binnenkort</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between p-3 pb-1 sm:pb-2 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground leading-tight">Keuring</CardTitle>
             {stats.keuringAlert.length > 0
-              ? <AlertTriangle className="h-4 w-4 text-orange-500" />
-              : <CheckCircle2 className="h-4 w-4 text-green-600" />
+              ? <AlertTriangle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-orange-500 shrink-0" />
+              : <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-600 shrink-0" />
             }
           </CardHeader>
-          <CardContent>
-            <p className={`text-3xl font-bold ${stats.keuringAlert.length > 0 ? "text-orange-500" : "text-green-600"}`}>
+          <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+            <p className={`text-2xl sm:text-3xl font-bold ${stats.keuringAlert.length > 0 ? "text-orange-500" : "text-green-600"}`}>
               {stats.keuringAlert.length}
             </p>
           </CardContent>
         </Card>
         <Card className={stats.insuranceAlert.length > 0 ? "border-orange-300 bg-orange-50" : "border-green-300 bg-green-50"}>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Verzekering verloopt binnenkort</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between p-3 pb-1 sm:pb-2 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground leading-tight">Verzekering</CardTitle>
             {stats.insuranceAlert.length > 0
-              ? <ShieldAlert className="h-4 w-4 text-orange-500" />
-              : <CheckCircle2 className="h-4 w-4 text-green-600" />
+              ? <ShieldAlert className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-orange-500 shrink-0" />
+              : <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-600 shrink-0" />
             }
           </CardHeader>
-          <CardContent>
-            <p className={`text-3xl font-bold ${stats.insuranceAlert.length > 0 ? "text-orange-500" : "text-green-600"}`}>
+          <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+            <p className={`text-2xl sm:text-3xl font-bold ${stats.insuranceAlert.length > 0 ? "text-orange-500" : "text-green-600"}`}>
               {stats.insuranceAlert.length}
             </p>
           </CardContent>
@@ -144,24 +144,24 @@ export default function Dashboard() {
                 Alle keuringen zijn in orde.
               </div>
             ) : (
-              <div className="space-y-1">
+              <div className="divide-y">
                 {stats.keuringAlert
                   .sort((a, b) => (a.inspection_date ?? "").localeCompare(b.inspection_date ?? ""))
                   .map((v) => (
-                    <div
+                    <button
                       key={v.id}
-                      className="flex items-center justify-between cursor-pointer hover:bg-muted/40 rounded p-2 transition-colors"
+                      className="w-full flex items-center justify-between hover:bg-muted/40 rounded px-2 py-1.5 transition-colors text-left"
                       onClick={() => navigate(`/vehicles/${v.id}`)}
                     >
-                      <div>
-                        <span className="font-mono text-sm font-semibold">{v.license_plate}</span>
-                        <span className="text-sm text-muted-foreground ml-2">{v.brand} {v.model}</span>
+                      <div className="min-w-0">
+                        <span className="font-mono text-sm font-bold tracking-wide">{v.license_plate}</span>
+                        <span className="text-xs text-muted-foreground ml-1.5 truncate">{v.brand} {v.model}</span>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 shrink-0 ml-2">
                         <span className="text-xs text-muted-foreground">{formatDate(v.inspection_date)}</span>
                         {urgencyBadge(daysUntil(v.inspection_date))}
                       </div>
-                    </div>
+                    </button>
                   ))}
               </div>
             )}
@@ -182,24 +182,24 @@ export default function Dashboard() {
                 Alle verzekeringen zijn in orde.
               </div>
             ) : (
-              <div className="space-y-1">
+              <div className="divide-y">
                 {stats.insuranceAlert
                   .sort((a, b) => (a.insurance_expiry ?? "").localeCompare(b.insurance_expiry ?? ""))
                   .map((v) => (
-                    <div
+                    <button
                       key={v.id}
-                      className="flex items-center justify-between cursor-pointer hover:bg-muted/40 rounded p-2 transition-colors"
+                      className="w-full flex items-center justify-between hover:bg-muted/40 rounded px-2 py-1.5 transition-colors text-left"
                       onClick={() => navigate(`/vehicles/${v.id}`)}
                     >
-                      <div>
-                        <span className="font-mono text-sm font-semibold">{v.license_plate}</span>
-                        <span className="text-sm text-muted-foreground ml-2">{v.brand} {v.model}</span>
+                      <div className="min-w-0">
+                        <span className="font-mono text-sm font-bold tracking-wide">{v.license_plate}</span>
+                        <span className="text-xs text-muted-foreground ml-1.5 truncate">{v.brand} {v.model}</span>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 shrink-0 ml-2">
                         <span className="text-xs text-muted-foreground">{formatDate(v.insurance_expiry)}</span>
                         {urgencyBadge(daysUntil(v.insurance_expiry))}
                       </div>
-                    </div>
+                    </button>
                   ))}
               </div>
             )}

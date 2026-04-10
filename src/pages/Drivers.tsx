@@ -189,6 +189,13 @@ export default function Drivers() {
                     <p className="text-sm">{assignedVehicles.length > 0 ? assignedVehicles.map((v) => v.license_plate).join(", ") : "—"}</p>
                   </div>
                 </div>
+                {d.license_categories && d.license_categories.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {d.license_categories.map((cat) => (
+                      <Badge key={cat} variant="outline" className="text-xs px-1.5 py-0">{cat}</Badge>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           );
@@ -224,6 +231,7 @@ export default function Drivers() {
                   </span>
                 </TableHead>
               ))}
+              <TableHead>Categorieën</TableHead>
               <TableHead>Voertuigen</TableHead>
               <TableHead className="w-[100px]" />
             </TableRow>
@@ -248,6 +256,14 @@ export default function Drivers() {
                     }
                   </TableCell>
                   <TableCell>
+                    {d.license_categories && d.license_categories.length > 0
+                      ? d.license_categories.map((cat) => (
+                          <Badge key={cat} variant="outline" className="mr-1 text-xs">{cat}</Badge>
+                        ))
+                      : <span className="text-muted-foreground text-xs">—</span>
+                    }
+                  </TableCell>
+                  <TableCell>
                     {assignedVehicles.length > 0
                       ? assignedVehicles.map((v) => (
                           <Badge key={v.id} variant="outline" className="mr-1 font-mono text-xs">{v.license_plate}</Badge>
@@ -266,7 +282,7 @@ export default function Drivers() {
             })}
             {filtered.length === 0 && (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                   Geen chauffeurs gevonden.
                 </TableCell>
               </TableRow>

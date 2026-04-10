@@ -9,7 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import type { Driver } from "@/data/types";
+
+const LICENSE_CATEGORIES = ["A", "B", "BE", "C", "CE"] as const;
 
 const schema = z.object({
   first_name: z.string().min(1, "Verplicht"),
@@ -18,6 +21,7 @@ const schema = z.object({
   email: z.string().email("Ongeldig e-mailadres").optional().or(z.literal("")).nullable(),
   license_number: z.string().optional().nullable(),
   license_expiry: z.string().optional().nullable(),
+  license_categories: z.array(z.string()).nullable(),
   active: z.boolean(),
   notes: z.string().optional().nullable(),
 });
@@ -48,9 +52,10 @@ export function DriverFormDialog({ open, onOpenChange, driver }: Props) {
         email: driver.email,
         license_number: driver.license_number,
         license_expiry: driver.license_expiry,
+        license_categories: driver.license_categories ?? [],
         active: driver.active,
         notes: driver.notes,
-      } : { active: true });
+      } : { active: true, license_categories: [] });
     }
   }, [open, driver, reset]);
 
@@ -61,6 +66,7 @@ export function DriverFormDialog({ open, onOpenChange, driver }: Props) {
       phone: data.phone || null,
       license_number: data.license_number || null,
       license_expiry: data.license_expiry || null,
+      license_categories: data.license_categories?.length ? data.license_categories : null,
       notes: data.notes || null,
     };
     if (isEdit) {
@@ -105,6 +111,30 @@ export function DriverFormDialog({ open, onOpenChange, driver }: Props) {
             <div className="space-y-1">
               <Label>Rijbewijs vervaldatum</Label>
               <Input {...register("license_expiry")} type="date" />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Rijbewijscategorieën</Label>
+            <div className="flex flex-wrap gap-3">
+              {LICENSE_CATEGORIES.map((cat) => {
+                const current = watch("license_categories") ?? [];
+                const checked = current.includes(cat);
+                return (
+                  <label key={cat} className="flex items-center gap-1.5 cursor-pointer select-none">
+                    <Checkbox
+                      checked={checked}
+                      onCheckedChange={(v) => {
+                        const next = v
+                          ? [...current, cat]
+                          : current.filter((c) => c !== cat);
+                        setValue("license_categories", next);
+                      }}
+                    />
+                    <span className="text-sm font-medium">{cat}</span>
+                  </label>
+                );
+              })}
             </div>
           </div>
 

@@ -10,6 +10,7 @@ export interface Driver {
   email: string | null;
   license_number: string | null;
   license_expiry: string | null;
+  license_categories: string[] | null;
   active: boolean;
   notes: string | null;
   created_at: string;

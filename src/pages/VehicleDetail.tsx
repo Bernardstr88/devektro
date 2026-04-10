@@ -67,23 +67,27 @@ export default function VehicleDetail() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="sm" onClick={() => setEditOpen(true)}>
-            <Pencil className="h-4 w-4 mr-1" /> Bewerken
+            <Pencil className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">Bewerken</span>
           </Button>
           <Button variant="outline" size="sm" onClick={() => setDeleteOpen(true)} className="text-destructive hover:text-destructive">
-            <Trash2 className="h-4 w-4 mr-1" /> Verwijderen
+            <Trash2 className="h-4 w-4 sm:mr-1" />
+            <span className="hidden sm:inline">Verwijderen</span>
           </Button>
         </div>
       </div>
 
       {/* Tabs */}
       <Tabs defaultValue="overview">
-        <TabsList>
-          <TabsTrigger value="overview">Overzicht</TabsTrigger>
-          <TabsTrigger value="maintenance">Onderhoud</TabsTrigger>
-          <TabsTrigger value="documents">Documenten</TabsTrigger>
-          <TabsTrigger value="planning">Planning</TabsTrigger>
-          <TabsTrigger value="mileage">Kilometerstanden</TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
+          <TabsList className="w-max min-w-full sm:w-auto">
+            <TabsTrigger value="overview">Overzicht</TabsTrigger>
+            <TabsTrigger value="maintenance">Onderhoud</TabsTrigger>
+            <TabsTrigger value="documents">Documenten</TabsTrigger>
+            <TabsTrigger value="planning">Planning</TabsTrigger>
+            <TabsTrigger value="mileage">Km-stand</TabsTrigger>
+          </TabsList>
+        </div>
         <TabsContent value="overview" className="mt-4">
           <OverviewTab vehicle={vehicle} />
         </TabsContent>

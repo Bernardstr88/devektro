@@ -26,8 +26,10 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-sidebar p-4">
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center space-y-3">
-          <img src={logoDevektro} alt="Devektro" className="h-12 w-auto mx-auto" />
-          <CardTitle className="text-xl">Devektro</CardTitle>
+          <img src={logoDevektro} alt="Devektro" className="h-14 w-auto mx-auto" />
+          <div>
+            <CardTitle className="text-xl">Devektro Fleet Manager</CardTitle>
+          </div>
           <p className="text-sm text-muted-foreground">Log in om verder te gaan</p>
         </CardHeader>
         <CardContent>
