@@ -147,7 +147,7 @@ Deno.serve(async (req) => {
           {
             filename: "afspraak.ics",
             content: icsBase64,
-            content_type: "text/calendar; charset=utf-8; method=REQUEST",
+            content_type: "text/calendar",
           },
         ],
       }),
