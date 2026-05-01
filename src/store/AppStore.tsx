@@ -96,7 +96,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     void qc.refetchQueries({ type: "active" });
     const channel = supabase.channel("devektro-sync");
     TABLES.forEach((table) => {
-      channel.on("postgres_changes", { event: "*", schema: "public", table }, () => {
+      channel.on("postgres_changes", { event: "*", schema: "devektro", table }, () => {
         qc.invalidateQueries({ queryKey: [table] });
       });
     });
