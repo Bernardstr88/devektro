@@ -86,9 +86,9 @@ Deno.serve(async (req) => {
       });
     }
 
-    const resendKey = Deno.env.get("RESEND_API_KEY");
+    const resendKey = Deno.env.get("RESEND_API_KEY_DEVEKTRO");
     if (!resendKey) {
-      console.error("RESEND_API_KEY not set");
+      console.error("RESEND_API_KEY_DEVEKTRO not set");
       return new Response(JSON.stringify({ sent: false, reason: "no_resend_key" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 500,
@@ -139,7 +139,7 @@ Deno.serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: Deno.env.get("EMAIL_FROM") ?? "noreply@pebg.be",
+        from: Deno.env.get("EMAIL_FROM_DEVEKTRO") ?? "noreply@pebg.be",
         to: [driver.email],
         subject: `Nieuwe afspraak: ${title} — ${formattedDate}`,
         html: emailHtml,
